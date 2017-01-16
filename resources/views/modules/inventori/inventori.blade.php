@@ -9,6 +9,8 @@
 @endsection
 
 @section('content')
+    @include('modal.serial.show.show')
+    
     <div class="box">
       <div class="box-body">
         <h1 class="pull-left">
@@ -30,7 +32,6 @@
                 <th>Merk</th>
                 <th>Tipe barang</th>
                 <th>Harga</th>
-                <th>Stok</th>
                 <th>Action</th>
               </tr>
           </thead>
@@ -83,7 +84,6 @@
                     { 'data': 'merk', 'name': 'master_merk.merk' },
                     { 'data': 'tipe_brg', 'name': 'inventori.tipe_brg' },
                     { 'data': 'harga_barang', 'name': 'inventori.harga_barang' },
-                    { 'data': 'jumlah', 'name': 'inventori.jumlah' }, 
                     { 'data': 'Action', 'name': 'Action', 'orderable': false, 'searchable': false },
                 ],
                 initComplete: function () {

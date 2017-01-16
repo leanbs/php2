@@ -18,6 +18,20 @@
                 ]) !!}
             </div>
 
+            {{-- <div class="form-group">
+                <label>Pilih</label>
+                <a id="tipe" class="btn btn-success form-control"><i class="fa fa-plus"></i> Menambah Tipe Baru</a>
+                <a id="serial" class="btn btn-primary form-control"><i class="fa fa-plus"></i> Menambah Serial Baru</a>
+            </div>
+
+            <div id="moo">
+                
+            </div>   --}}  
+
+               
+            
+            
+
             <div class="form-group">
                 {!! Form::label('tipe_brg', 'Tipe barang') !!}
                 {!! Form::text('tipe_brg', null, [
@@ -37,15 +51,32 @@
                 ]) !!}
             </div>
 
+            {{-- <div class="form-group">
+                {!! Form::label('serial', 'Serial 1') !!}
+                {!! Form::text('serial[]', '', [
+                    'class'       => 'form-control',
+                    'placeholder' => 'Serial',
+                    (isset($disabled) ? 'disabled' : ''),
+                ]) !!}
+            </div>
+
             <div class="form-group">
-                {!! Form::label('stok', 'Stok') !!}
-                {!! Form::text('jumlah', null, [
+                {!! Form::label('stok', 'Stok 1') !!}
+                {!! Form::text('jumlah[]', '', [
                     'class'       => 'form-control',
                     'placeholder' => 'Stok',
                     (isset($disabled) ? 'disabled' : ''),
                 ]) !!}
+            </div> --}}
+
+            <div id="moo1">
+                
             </div>
+            {{-- <a id="tambah-serial" class="btn btn-success pull-right"><i class="fa fa-plus"></i> Tambah serial lagi</a> --}}
+
+
         </div>
+
 
         <div class="col-xs-6 col-md-6 text-center">
             {!! Form::submit('OK', ['class' => 'btn btn-confirm btn-sm']) !!}
@@ -74,4 +105,5 @@
         }
         data.set('harga_barang', currency);
     });
+
 </script>

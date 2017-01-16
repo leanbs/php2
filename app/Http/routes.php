@@ -29,6 +29,13 @@ Route::post('register', 'Auth\AuthController@postRegister');
 Route::get('manage/inventori', 'InventoryController@manage');
 Route::resource('inventori', 'InventoryController');
 Route::get('manage/tipemerk', 'PagesController@getTipeMerkManage');
+Route::get('manage/inventori/serial/{id}', 'InventoryController@showSerial');
+Route::get('manage/inventori/serial/table/{id}', 'InventoryController@showTableSerial');
+Route::post('manage/inventori/serial/add', 'InventoryController@addSerial');
+Route::post('manage/inventori/serial/edit', 'InventoryController@editSerial');
+Route::post('manage/inventori/serial/delete', 'InventoryController@deleteSerial');
+
+
 
 /** Management Kategori and Merk route */
 Route::resource('kategori', 'KategoriController');

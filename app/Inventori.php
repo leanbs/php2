@@ -30,7 +30,6 @@ class Inventori extends Model
         'id_kategori',
         'id_merk',
         'harga_barang',
-        'jumlah',
     ];
 
     /**
@@ -76,5 +75,12 @@ class Inventori extends Model
     {
         return $this->belongsTo('App\Kategori', 'id_kategori', 'id_kategori');
     }
+
+
+    public function serial()
+    {
+        return $this->hasMany('App\Serial', 'tipe_brg', 'tipe_brg');
+    }
+
 
 }

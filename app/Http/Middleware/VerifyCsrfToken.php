@@ -15,6 +15,8 @@ class VerifyCsrfToken extends BaseVerifier
         'akun',
         'transaksi',
         'detiltransaksi',
-        'api/updateInventory/stok/{stok}/tipe_brg/{tipe_brg}'
+        'api/updateInventory/stok/{stok}/tipe_brg/{tipe_brg}',
+        'manage/inventori/serial/edit',
+        'manage/inventori/serial/delete'
     ];
 }

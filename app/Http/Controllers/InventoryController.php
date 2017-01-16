@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Log;
 use Datatables;
+use Validator;
 use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -12,6 +13,7 @@ use App\Http\Requests\InventoryRequest;
 use App\Inventori;
 use App\Kategori;
 use App\Merk;
+use App\Serial;
 
 class InventoryController extends Controller
 {
@@ -63,10 +65,31 @@ class InventoryController extends Controller
                                     'master_merk.merk',
                                     'master_kategori.kategori',
                                     'inventori.harga_barang',
-                                    'inventori.jumlah',
                                 ]);
 
         return Datatables::of($inventoris)
+            ->editColumn('tipe_brg', function ($inventori) {
+                return
+                    '<a id="showSeri-'. $inventori['tipe_brg'] .'"
+                        style="color: blue; text-decoration: none; cursor: pointer;"
+                        title="Klik melihat list serial kode">
+                        '. $inventori['tipe_brg'] .'
+                    </a>
+                    <script type="text/javascript">
+                        $(function(){
+                            $.ajaxSetup ({
+                                cache: false
+                            });
+                            var id = "'. $inventori['tipe_brg'] .'";                               
+                            var loadUrl = "inventori/serial/"+id;
+                            $("#showSeri-"+id).click(function(){
+                                $("#modal-body-showListSerial").load(loadUrl, function(result){
+                                    $("#modalShowListSerial").modal({show:true});
+                                });
+                            });
+                        });
+                    </script>';
+            })
             ->addColumn('Action', function ($inventori) {
                 $urlEdit = url('/inventori/' . $inventori['tipe_brg'] . '/edit');
                 $urlDelete = url('/inventori/' . $inventori['tipe_brg']);
@@ -102,7 +125,18 @@ class InventoryController extends Controller
         $data['kategori'] = Kategori::lists('kategori', 'id_kategori');
         $data['merk'] = Merk::lists('merk', 'id_merk');
 
+        $tipe = Inventori::get();
+
+        // $moo = '<option value="">--</option>';
+
+        // foreach ($tipe as $value) 
+        // {
+        //     $moo .= '<option value="$value->tipe_brg">$value->tipe_brg</option>';
+        // }
+       
+
         return view('modules.inventori.create', $data);
+                // ->with('tipe', $moo);
     }
 
     /**
@@ -118,19 +152,17 @@ class InventoryController extends Controller
         $harga_barang = floatval(str_replace(".","", $request->input('harga_barang')));
         $id_merk = $request->input('id_merk');
         $id_kategori = $request->input('id_kategori');
-        $jumlah = $request->input('jumlah');
 
         $inventori = Inventori::create([
                 'tipe_brg'         => $tipe_brg,
                 'id_kategori'      => $id_kategori,
                 'id_merk'          => $id_merk,
                 'harga_barang'     => $harga_barang,
-                'jumlah'           => $jumlah,
             ]);
 
         return response()->json([
-            // 'success' => trans('action.success.add'),
-            'success' => $harga_barang,
+            'success' => trans('action.success.add'),
+            // 'success' => $harga_barang,
         ]);
     }
 
@@ -286,4 +318,118 @@ class InventoryController extends Controller
         return $inventoris;
     }
 
+    public function showSerial($id)
+    {
+        return view('modal.serial.show.formShow')
+            ->with('id', $id);
+    }
+
+    public function showTableSerial($id)
+    {
+        $serial = Serial::join('inventori', 'serial.tipe_brg', '=', 'inventori.tipe_brg')
+                        ->where('serial.tipe_brg', '=', $id)
+                        ->select([
+                            'serial.id_serial as id_serial',
+                            'serial.serial as serial',
+                            'serial.jumlah as jumlah'
+                        ])->get();
+
+        return Datatables::of($serial)
+            ->editColumn('serial', function ($serials) {
+                return
+                    '<input type="text" id="serial-'. $serials->id_serial .'" class="form-control" value="'. $serials->serial .'">';
+            })
+            ->editColumn('jumlah', function ($serials) {
+                return
+                    '<input type="text" id="jumlah-'. $serials->id_serial .'" class="form-control" value="'. $serials->jumlah .'">';
+            })
+            ->addColumn('Action', function ($serials) {
+                return
+                    '<a id="editSerial-'. $serials->id_serial .'"
+                        data-toggle="modal" data-target="#deleteModalHistoriMasuk" 
+                        style="color: blue; text-decoration: none; cursor: pointer;"
+                        title="Klik untuk mengubah produk terjual ini"
+                        onclick="ubahSerial(this)">
+                        <i class="fa fa-pencil-square-o"></i>
+                    </a>
+                    &nbsp;&nbsp;
+                    <a id="deleteSerial-'. $serials->id_serial .'" 
+                        data-toggle="modal" data-target="#stokProdukEditModal" 
+                        style="color: red; text-decoration: none; cursor: pointer;"
+                        title="Klik untuk menghapus produk terjual ini"
+                        onclick="hapusSerial(this)">
+                        <i class="fa fa-trash-o"></i>
+                    </a>';
+            })
+            ->make(true);
+    }
+
+    protected function validatorAddSerial(array $data)
+    {
+        return Validator::make($data, [
+            'serial'                => 'required',
+            'jumlah'                => 'required|numeric',
+        ]);      
+    }
+
+    public function addSerial(Request $request)
+    {
+        $validator = $this->validatorAddSerial($request->all());
+        if ($validator->fails()) 
+        {
+            $this->throwValidationException($request, $validator);
+        }  
+
+        $tipe = $request->input('id');
+        $serial = $request->input('serial');
+        $jumlah = $request->input('jumlah');
+
+        $serial = Serial::create([
+                'tipe_brg'         => $tipe,
+                'serial'           => $serial,
+                'jumlah'           => $jumlah,            
+        ]);
+
+        return response()->json([
+            'success' => trans('action.success.add'),
+            // 'success' => $harga_barang,
+        ]);
+    }
+
+
+
+    public function editSerial(Request $request)
+    {
+        // Copy base rules.
+        $validator = $this->validatorAddSerial($request->all());
+        if ($validator->fails()) 
+        {
+            $this->throwValidationException($request, $validator);
+        }  
+
+        $id = $request->id;
+        $jumlah = $request->jumlah;
+        $serial = $request->serial;
+
+            $serials = Serial::findOrFail($id);
+
+            $serials->update([
+                    'serial'           => $serial,
+                    'jumlah'           => $jumlah,
+                ]);
+
+            return 'Update success.';
+    }
+
+    public function deleteSerial(Request $request)
+    {   
+
+        $id = $request->id;
+
+            $serials = Serial::findOrFail($id);
+
+            $serials->delete();
+
+            return 'delete success.';
+    }
 }
